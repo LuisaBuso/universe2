@@ -1,0 +1,40 @@
+body {
+    background-color: black;
+    color: pink;
+    font-family: Arial, sans-serif;
+  }
+  
+  .user-table-container {
+    padding: 20px;
+  }
+  
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .logo, .unicornio-logo {
+    font-size: 18px;
+  }
+  
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .user-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .user-table th, .user-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid pink;
+  }
+  
+  .user-table th {
+    font-weight: bold;
+  }
