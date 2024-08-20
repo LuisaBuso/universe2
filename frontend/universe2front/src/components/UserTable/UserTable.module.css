@@ -16,9 +16,15 @@ body {
   }
   
   .logo, .unicornio-logo {
-    font-size: 18px;
+    font-size: 20px;
+    display: flex;
+    align-items: center
   }
   
+  .logo{
+    padding: 10px;
+  }
+
   h1 {
     text-align: center;
     margin-bottom: 20px;
@@ -38,3 +44,106 @@ body {
   .user-table th {
     font-weight: bold;
   }
+  .userTableContainer {
+    padding: 20px;
+  }
+  
+  .userTable {
+    width: 100%;
+    margin-top: 20px; /* Espacio entre el encabezado y la tabla */
+  }
+  
+  .userTable th, .userTable td {
+    padding: 10px;
+    /* text-align: left;
+    border-bottom: 1px solid pink; */
+  }
+  
+  .userTable th {
+    border-radius: 1%;
+    font-weight: bold;
+    border: 10px;
+    background-color: #141111;
+  }
+  
+  .userTable tr:nth-child(even) {
+    background-color: rgba(255, 20, 147, 0.1); /* Fondo rosa claro para filas pares */
+  }
+  
+  .userTable tr:hover {
+    background-color: rgba(255, 20, 147, 0.2); /* Fondo rosa más oscuro al pasar el cursor */
+  }
+  
+  .userTable td {
+    text-align: center;
+  }
+  
+  .userTable th:first-child, .userTable td:first-child {
+    text-align: left;
+  }
+  
+  @media (max-width: 768px) {
+    .user-table-container {
+      padding: 10px; /* Reducir el padding en pantallas pequeñas */
+    }
+  
+    .user-table {
+      display: block;
+      width: 100%;
+      overflow-x: auto; /* Habilita el desplazamiento horizontal en pantallas pequeñas */
+      margin-top: 10px; /* Reducir el margen superior en pantallas pequeñas */
+    }
+  
+    .user-table thead {
+      display: none; /* Ocultar los encabezados en dispositivos móviles */
+    }
+  
+    .user-table tr {
+      display: block;
+      margin-bottom: 10px; /* Espacio entre las filas */
+      border: 1px solid pink; /* Añadir bordes entre filas */
+    }
+  
+    .user-table td {
+      display: block;
+      text-align: right;
+      position: relative;
+      padding-left: 50%; /* Espacio para las etiquetas */
+      border-bottom: 1px solid pink; /* Separador entre filas */
+    }
+  
+    .user-table td::before {
+      content: attr(data-label); /* Usa el atributo data-label para mostrar los nombres de las columnas */
+      position: absolute;
+      left: 0;
+      width: 50%;
+      padding-left: 10px;
+      font-weight: bold;
+      background-color: #141111;
+      color: pink;
+      border-right: 1px solid pink;
+      white-space: nowrap;
+    }
+  }
+  @media (max-width: 320px) {
+    .user-table-container {
+      padding: 5px; /* Reducir aún más el padding en pantallas muy pequeñas */
+    }
+  
+    .user-table td {
+      font-size: 12px; /* Reducir el tamaño de fuente para que se ajuste mejor en pantallas pequeñas */
+      padding: 5px; /* Reducir el padding en celdas */
+    }
+  
+    .user-table th {
+      font-size: 14px; /* Reducir el tamaño de fuente de los encabezados */
+    }
+    .logo {
+      padding: 10px;
+  }
+  .logo{
+    font-size: 0%;
+    display: flex;
+    align-items: center;
+}
+}

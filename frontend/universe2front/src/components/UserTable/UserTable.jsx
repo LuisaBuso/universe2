@@ -1,41 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import './UserTable.module.css'; // Asumimos que crearás un archivo CSS para los estilos
+import axios from 'axios';
+import styles from './UserTable.module.css'; // Asumimos que creaste un archivo CSS para los estilos
 
 function UserTable() {
-  const [users, setUsers] = useState([]);
+  const [clientes, setclientes] = useState([]);
 
   useEffect(() => {
-    // Aquí harías la llamada a tu API para obtener los datos de los usuarios
-    // Por ahora, usaremos datos de ejemplo
+    // Función para obtener los datos de los usuarios desde la API
     const fetchUsers = async () => {
-      // const response = await fetch('tu-api-url/users');
-      // const data = await response.json();
-      // setUsers(data);
-      
-      // Datos de ejemplo:
-      setUsers([
-        { id: 1, whatsapp: '+1234567890', nombre: 'Juan Rivero', pdgot: 'Ejemplo', compras: 3 },
-        { id: 2, whatsapp: '+0987654321', nombre: 'Esteban Roche', pdgot: 'Ejemplo', compras: 2 },
-        // ... más usuarios
-      ]);
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/clientes');
+        setclientes(response.data); // Actualiza el estado con los datos de la API
+      } catch (error) {
+        console.error('Error fetching data:', error); // Manejo de errores
+      }
     };
 
     fetchUsers();
   }, []);
 
   return (
-    <div className="user-table-container">
+    <div className={styles.userTableContainer}>
       <header>
-        <div className="logo">
+        <div className={styles.logo}>
           <img src="LogoRizos2.png" alt="Unicornio Logo" />
-          <span className="logo-full">RIZOS FELICES ONLINE</span>
+          <span className={styles.logoFull}>RIZOS FELICES ONLINE</span>
         </div>
-        <div className="unicornio-logo">
+        <div className={styles.unicornioLogo}>
           <img src="LogoUnicornio.png" alt="Unicornio Logo" />
         </div>
       </header>
       <h1>TOTAL USUARIOS</h1>
-      <table className="user-table">
+      <table className={styles.userTable}>
         <thead>
           <tr>
             <th>ID</th>
@@ -46,13 +42,13 @@ function UserTable() {
           </tr>
         </thead>
         <tbody>
-          {users.map(user => (
-            <tr key={user.id}>
-              <td>{user.id}</td>
-              <td>{user.whatsapp}</td>
-              <td>{user.nombre}</td>
-              <td>{user.pdgot}</td>
-              <td>{user.compras}</td>
+          {clientes.map(cliente => (
+            <tr key={cliente.id}>
+              <td>{cliente.id}</td>
+              <td>{cliente.phone}</td>
+              <td>{cliente.first_name}</td>
+              <td>{cliente.textura}</td>
+              <td>{cliente.compras}</td>
             </tr>
           ))}
         </tbody>
