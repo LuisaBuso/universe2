@@ -1,11 +1,19 @@
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException,Query
 from typing import List,Optional
 from config import collection  
-from bson import ObjectId 
+from bson import ObjectId
 
 app = FastAPI()
 
-#endpoint para traer datos de clientes suscriptores
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Cambia esto al puerto de tu frontend
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.get("/clientes/", response_model=List[dict])
 def obtener_clientes():
     try:
