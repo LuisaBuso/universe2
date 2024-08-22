@@ -20,3 +20,23 @@ client = MongoClient(url)
 # Conectar a la base de datos y a la colección
 db = client[db_name]
 collection = db['datauser']
+
+def assign_ids():
+    try:
+        # Obtener todos los documentos que no tienen un '_id' en el formato correcto
+        usuarios_sin_id = collection.find({"_id": {"$exists": False}})
+        
+        for usuario in usuarios_sin_id:
+            new_id = generate_user_id()
+            collection.update_one(
+                {"_id": {"$exists": False}},
+                {"$set": {"_id": new_id}}
+            )
+            print(f"Asignado ID {new_id} a usuario {usuario}")
+
+        print("Asignación de IDs completada.")
+    except Exception as e:
+        print(f"Error al asignar IDs: {e}")
+
+if __name__ == "__main__":
+    assign_ids()
