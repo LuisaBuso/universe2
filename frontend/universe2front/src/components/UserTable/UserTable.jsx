@@ -2,6 +2,27 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import styles from './UserTable.module.css';
 
+function PDOGTModal({ isOpen, onClose, pdogtData }) {
+  if (!isOpen || !pdogtData) return null;
+
+  return (
+    <div className={styles.modal}>
+      <div className={styles.modalContent}>
+        <h2>RESULTADO PDOGT</h2>
+        <p>Plasticidad: {pdogtData.plasticidad}</p>
+        <p>Permeabilidad: {pdogtData.permeabilidad}</p>
+        <p>Densidad: {pdogtData.densidad}</p>
+        <p>Porosidad: {pdogtData.porosidad}</p>
+        <p>Oleosidad: {pdogtData.oleosidad}</p>
+        <p>Hebra: {pdogtData.hebra}</p>
+        <p>Textura: {pdogtData.textura}</p>
+        <button onClick={onClose}>Cerrar</button>
+      </div>
+    </div>
+  );
+}
+
+
 function UserTable() {
   const [clientes, setClientes] = useState([]);
   const [filtro, setFiltro] = useState('');
@@ -13,10 +34,15 @@ function UserTable() {
   });
   const [clienteEditando, setClienteEditando] = useState(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const formularioRef = useRef(null); // Crea el ref
+  const [totalClientes, setTotalClientes] = useState(0);
+  const [startIndex, setStartIndex] = useState(1);
+  const formularioRef = useRef(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedPDOGT, setSelectedPDOGT] = useState(null);
 
   useEffect(() => {
     fetchUsers();
+    fetchTotalClients();
   }, []);
 
   const fetchUsers = async () => {
@@ -25,6 +51,15 @@ function UserTable() {
       setClientes(response.data);
     } catch (error) {
       console.error('Error fetching data:', error);
+    }
+  };
+
+  const fetchTotalClients = async () => {
+    try {
+      const response = await axios.get('http://127.0.0.1:8000/clientes/count');
+      setTotalClientes(response.data.total_clientes);
+    } catch (error) {
+      console.error('Error fetching total clients:', error);
     }
   };
 
@@ -37,11 +72,12 @@ function UserTable() {
     e.preventDefault();
     try {
       if (clienteEditando) {
-        await axios.put(`http://127.0.0.1:8000/clientes/${clienteEditando.id}`, nuevoCliente);
+        await axios.put(`http://127.0.0.1:8000/clientes/${clienteEditando.unique_id}`, nuevoCliente);
       } else {
         await axios.post('http://127.0.0.1:8000/clientes', nuevoCliente);
       }
       fetchUsers();
+      fetchTotalClients();
       setNuevoCliente({ phone: '', first_name: '', textura: '', compras: '' });
       setClienteEditando(null);
       setMostrarFormulario(false);
@@ -55,6 +91,7 @@ function UserTable() {
       try {
         await axios.delete(`http://127.0.0.1:8000/clientes/${id}`);
         fetchUsers();
+        fetchTotalClients();
       } catch (error) {
         console.error('Error deleting client:', error);
       }
@@ -66,7 +103,7 @@ function UserTable() {
     setNuevoCliente(cliente);
     setMostrarFormulario(true);
     if (formularioRef.current) {
-      formularioRef.current.scrollIntoView({ behavior: 'smooth' }); // Desplaza hacia el formulario
+      formularioRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -75,7 +112,10 @@ function UserTable() {
     setNuevoCliente({ phone: '', first_name: '', textura: '', compras: '' });
     setMostrarFormulario(false);
   };
-
+  const handleOpenModal = (cliente) => {
+    setSelectedPDOGT(cliente);
+    setModalOpen(true);
+  };
   const clientesFiltrados = clientes.filter(cliente =>
     Object.values(cliente).some(value =>
       value.toString().toLowerCase().includes(filtro.toLowerCase())
@@ -93,20 +133,23 @@ function UserTable() {
           <img src="LogoUnicornio.png" alt="Unicornio Logo" />
         </div>
       </header>
-      <h1>TOTAL USUARIOS</h1>
+      <h1 className={styles.totalUsers}>TOTAL USUARIOS: {totalClientes}</h1>
 
-      <input
-        type="text"
-        placeholder="Buscar..."
-        value={filtro}
-        onChange={(e) => setFiltro(e.target.value)}
-        className={styles.searchInput}
-      />
-
-      <button onClick={() => setMostrarFormulario(!mostrarFormulario)} className={styles.actionButton}>
-        {mostrarFormulario ? 'Cancelar' : 'Agregar nuevo cliente'}
-      </button>
-
+      <div className={styles.searchAndNewContainer}>
+        <input
+          type="text"
+          placeholder="Buscar..."
+          value={filtro}
+          onChange={(e) => setFiltro(e.target.value)}
+          className={styles.searchInput}
+        />
+        <button
+          onClick={() => setMostrarFormulario(!mostrarFormulario)}
+          className={styles.newClientButton}
+        >
+          {mostrarFormulario ? 'Cancelar' : 'Agregar nuevo cliente'}
+        </button>
+      </div>
       {mostrarFormulario && (
         <form ref={formularioRef} onSubmit={handleSubmit} className={styles.formContainer}>
           <input
@@ -125,7 +168,7 @@ function UserTable() {
             name="textura"
             value={nuevoCliente.textura}
             onChange={handleInputChange}
-            placeholder="PDGOT"
+            placeholder="PDOGT"
           />
           <input
             name="compras"
@@ -145,30 +188,42 @@ function UserTable() {
       <table className={styles.userTable}>
         <thead>
           <tr>
-            <th>ID</th>
+            <th>CANTIDAD</th>
             <th>WHATSAPP</th>
             <th>NOMBRE</th>
-            <th>PDGOT</th>
+            <th>PDOGT</th>
             <th>COMPRAS</th>
             <th>ACCIONES</th>
           </tr>
         </thead>
         <tbody>
-          {clientesFiltrados.map(cliente => (
+          {clientesFiltrados.map((cliente, index) => (
             <tr key={cliente.unique_id}>
-              <td>{cliente.unique_id}</td>
+              <td>{index + 1}</td>
               <td>{cliente.phone}</td>
               <td>{cliente.first_name}</td>
-              <td>{cliente.textura}</td>
+              <td>
+                <button className={styles.viewButton} onClick={() => handleOpenModal(cliente)}>
+                  Ver
+                </button>
+              </td>
               <td>{cliente.compras}</td>
               <td>
-                <button className={styles.actionButton} onClick={() => handleEdit(cliente)}>Editar</button>
-                <button className={styles.actionButton} onClick={() => handleDelete(cliente.unique_id)}>Eliminar</button>
+                <div className={styles.actionButtonContainer}>
+                  <button className={styles.actionButton} onClick={() => handleEdit(cliente)}>Editar</button>
+                  <button className={styles.actionButton} onClick={() => handleDelete(cliente.unique_id)}>Eliminar</button>
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      <PDOGTModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        pdogtData={selectedPDOGT}
+      />
     </div>
   );
 }
