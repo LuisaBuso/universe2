@@ -21,34 +21,33 @@ app.add_middleware(
 class User(BaseModel):
     first_name: str  # Asegúrate de que este campo coincida con el de tu base de datos
     phone: str  # Asegúrate de que este campo esté presente
-    
+                #poner todos los campos!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # Función para generar un ID único
 def generate_unique_id():
     return str(uuid.uuid4())
 
 # Crear o actualizar un usuario
-@app.post("/clientes/", response_model=dict)
-def crear_o_actualizar_usuario(user: User):
-    try:
-        # Buscar si el usuario ya existe por el campo 'phone'
-        existing_user = collection.find_one({"phone": user.phone})
+# @app.post("/clientes/", response_model=dict)
+# def crear_o_actualizar_usuario(user: User):
+#     try:
+#         # Buscar si el usuario ya existe por el campo 'phone'
+#         existing_user = collection.find_one({"phone": user.phone})
 
-        if existing_user:
-            # Actualizar los datos del usuario existente
-            updated_data = {k: v for k, v in user.dict().items() if v is not None}
-            collection.update_one({"phone": user.phone}, {"$set": updated_data})
-            return {"message": "Usuario actualizado exitosamente"}
-        else:
-            # Crear un nuevo usuario si no existe
-            user_data = user.dict()
-            user_data["unique_id"] = generate_unique_id()  # Generar unique_id
-            collection.insert_one(user_data)
-            return {"message": "Usuario creado exitosamente"}
+#         if existing_user:
+#             # Actualizar los datos del usuario existente
+#             updated_data = {k: v for k, v in user.dict().items() if v is not None}
+#             collection.update_one({"phone": user.phone}, {"$set": updated_data})
+#             return {"message": "Usuario actualizado exitosamente"}
+#         else:
+#             # Crear un nuevo usuario si no existe
+#             user_data = user.dict()
+#             user_data["unique_id"] = generate_unique_id()  # Generar unique_id
+#             collection.insert_one(user_data)
+#             return {"message": "Usuario creado exitosamente"}
 
-    except Exception as e:
-        print(f"Error al crear o actualizar usuario: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
+#     except Exception as e:
+#         print(f"Error al crear o actualizar usuario: {e}")
+#         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/clientes/", response_model=List[dict])
 def obtener_clientes():
@@ -69,21 +68,48 @@ def obtener_clientes():
         print(f"Error al obtener clientes: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# Actualizar un usuario existente
-@app.put("/clientes/{unique_id}", response_model=dict)
-def actualizar_usuario(unique_id: str, user: User):
-    try:
-        updated_data = {k: v for k, v in user.dict().items() if v is not None}
-        result = collection.update_one({"unique_id": unique_id}, {"$set": updated_data})
 
-        if result.modified_count:
-            return {"message": "Usuario actualizado exitosamente"}
+    
+
+@app.put("/clientes/{id}", response_model=dict)
+def actualizar_usuario(id: str, user: User):
+    try:
+        # Verificar si el usuario existe
+        existing_user = collection.find_one({"id": id})
+
+        if existing_user:
+            # Actualizar el usuario existente
+            updated_data = {k: v for k, v in user.dict().items() if v is not None}
+            result = collection.update_one({"id": id}, {"$set": updated_data})
+
+            if result.modified_count:
+                return {"message": "Usuario actualizado exitosamente"}
+            else:
+                raise HTTPException(status_code=404, detail="No se encontraron cambios para actualizar")
         else:
-            raise HTTPException(status_code=404, detail="No se encontró el usuario o no hubo cambios")
+            # Si el usuario no existe, puedes optar por crear uno nuevo
+            # collection.insert_one(user.dict())
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
     except Exception as e:
         print(f"Error al actualizar usuario: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# Actualizar un usuario existente
+# @app.put("/clientes/{unique_id}", response_model=dict)
+# def actualizar_usuario(unique_id: str, user: User):
+#     try:
+#         updated_data = {k: v for k, v in user.dict().items() if v is not None}
+#         result = collection.update_one({"unique_id": unique_id}, {"$set": updated_data})
+
+#         if result.modified_count:
+#             return {"message": "Usuario actualizado exitosamente"}
+#         else:
+#             raise HTTPException(status_code=404, detail="No se encontró el usuario o no hubo cambios")
+
+#     except Exception as e:
+#         print(f"Error al actualizar usuario: {e}")
+#         raise HTTPException(status_code=500, detail=str(e))
 
 # Eliminar un usuario por ID
 @app.delete("/clientes/{unique_id}", response_model=dict)
@@ -100,28 +126,13 @@ def eliminar_usuario(unique_id: str):
         print(f"Error al eliminar usuario: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-#endpoint para filtrar por atributos
-@app.get("/clientes/filtrar/", response_model=List[dict])
-def filtrar_clientes(textura: Optional[str] = None, densidad: Optional[str] = None, porosidad: Optional[str] = None,plasticidad: Optional[str] = None,hebra: Optional[str] = None,oleosidad: Optional[str] = None,permeabilidad: Optional[str] = None):
-    query = {}
-    if textura:
-        query["textura"] = textura
-    if densidad:
-        query["densidad"] = densidad
-    if porosidad:
-        query["porosidad"] = porosidad
-    if porosidad:
-        query["plasticidad"] = plasticidad
-    if porosidad:
-        query["hebra"] = hebra
-    if porosidad:
-        query["oleosidad"] = oleosidad
-    if porosidad:
-        query["permeabilidad"] = permeabilidad    
 
-        print("Consulta MongoDB:", query)               
-    
-    clientes = collection.find(query)
-    lista_clientes = [cliente for cliente in clientes]
-    return lista_clientes
+@app.get("/clientes/count", response_model=dict)
+def contar_clientes():
+    try:
+        total_clientes = collection.count_documents({})
+        return {"total_clientes": total_clientes}
+    except Exception as e:
+        print(f"Error al contar clientes: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
