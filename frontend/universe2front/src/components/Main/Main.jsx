@@ -6,20 +6,20 @@ function Login() {
   const navigate = useNavigate();
 
   const handleUserLogin = () => {
-    // Aquí iría la lógica para el login de usuarios regulares
+    // Lógica para redirigir a la página de usuarios
     navigate('/users'); // Redirige a la página de usuarios
   };
 
   const handleBusinessLogin = () => {
-    // Aquí iría la lógica para el login de Business Intelligence
-    navigate('/business'); // Redirige a la página de Business Intelligence
+    // Redirige al dashboard de Business Intelligence servido por FastAPI y Dash
+    window.location.href = 'http://localhost:8050/dashboard'; // Cambia el URL según la configuración de tu backend
   };
 
   return (
     <div className="login-container">
       <header>
         <div className="logo">
-          <img src="LogoRizos2.png" alt="Unicornio Logo" />
+          <img src="LogoRizos2.png" alt="Rizos Felices Logo" />
           <span className="logo-full">RIZOS FELICES ONLINE</span>
         </div>
         <div className="unicornio-logo">
@@ -31,7 +31,7 @@ function Login() {
           USUARIOS
         </button>
         <button className="login-button" onClick={handleBusinessLogin}>
-          BUSINESS INTELIGENCE
+          BUSINESS INTELLIGENCE
         </button>
       </main>
     </div>

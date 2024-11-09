@@ -17,6 +17,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+openai.api_key = "YOUR_API_KEY"
+
+@app.post("/api/ask")
+async def ask_gpt(request: Request):
+    body = await request.json()
+    question = body.get("question")
+
+    response = openai.Completion.create(
+        engine="text-davinci-003",  # O el motor que estés usando
+        prompt=question,
+        max_tokens=150
+    )
+    return {"answer": response.choices[0].text.strip()}
+
 # Modelo de datos para Pydantic
 class User(BaseModel):
     first_name: str  # Asegúrate de que este campo coincida con el de tu base de datos
@@ -135,4 +149,3 @@ def contar_clientes():
     except Exception as e:
         print(f"Error al contar clientes: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
